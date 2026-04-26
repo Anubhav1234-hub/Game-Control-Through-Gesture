@@ -1,0 +1,90 @@
+The Code is Done On Spyder , So you can used as per your your system Requirements:-
+You Can Directly Use teh code if you are using Spyder:-
+
+Code:-
+import cv2
+import mediapipe as mp
+import pyautogui
+
+# Start webcam
+cap = cv2.VideoCapture(0)
+
+# MediaPipe hands
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(max_num_hands=1)
+mp_draw = mp.solutions.drawing_utils
+
+current_action = None
+
+while True:
+    success, img = cap.read()
+    if not success:
+        break
+
+    # Flip image for mirror view
+    img = cv2.flip(img, 1)
+
+    h, w, c = img.shape
+
+    # Draw center line
+    cv2.line(img, (w//2, 0), (w//2, h), (0, 255, 0), 2)
+
+    # Convert image to RGB
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    # Process hand detection
+    result = hands.process(img_rgb)
+
+    action = "NONE"
+
+    if result.multi_hand_landmarks:
+        for hand_landmarks in result.multi_hand_landmarks:
+
+            # Draw hand landmarks
+            mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+            # Get index finger tip position
+            index_tip = hand_landmarks.landmark[8]
+            cx = int(index_tip.x * w)
+            cy = int(index_tip.y * h)
+
+            cv2.circle(img, (cx, cy), 10, (255, 0, 0), cv2.FILLED)
+
+            # LEFT side = Accelerate
+            if cx < w//2:
+                action = "ACCELERATE"
+
+            # RIGHT side = Brake
+            else:
+                action = "BRAKE"
+
+    # Release previous key
+    if action != current_action:
+        pyautogui.keyUp('left')
+        pyautogui.keyUp('right')
+
+        if action == "ACCELERATE":
+            pyautogui.keyDown('right')
+
+        elif action == "BRAKE":
+            pyautogui.keyDown('left')
+
+        current_action = action
+
+    # Display text
+    cv2.putText(img, action, (50, 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 1,
+                (0, 0, 255), 3)
+
+    cv2.imshow("Hill Climb Gesture Control", img)
+
+    # Press ESC to quit
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+# Release keys
+pyautogui.keyUp('left')
+pyautogui.keyUp('right')
+
+cap.release()
+cv2.destroyAllWindows()
