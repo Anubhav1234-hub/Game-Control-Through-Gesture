@@ -1,0 +1,5 @@
+This project focuses on developing a hand gesture–based control system to interact with the PC game Hill Climbing.
+The system captures hand movements using a camera or sensor and processes the input to recognize specific gestures.
+These gestures are then mapped to game controls such as acceleration and braking, enabling a touch-free gaming experience. 
+The project integrates concepts from image processing, embedded systems, and human–computer interaction, providing practical exposure to real-time data acquisition and control. 
+Through this implementation, the project demonstrates how intuitive gesture-based interfaces can enhance user interaction and create more engaging and accessible control systems.
